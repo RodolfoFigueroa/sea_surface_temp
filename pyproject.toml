@@ -1,0 +1,45 @@
+[project]
+name = "sea-surface-temp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "RodolfoFigueroa", email = "rodolfo@daku.moe" }]
+requires-python = ">=3.13"
+dependencies = [
+    "aiohttp>=3.14.5",
+    "beautifulsoup4>=4.15.0",
+    "earthengine-api>=1.7.49",
+    "gcsfs>=2026.10.1",
+    "geocube>=0.7.1",
+    "geopandas>=1.2.0",
+    "intake>=2.0.9",
+    "intake-esm>=2025.12.12",
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+    "rasterio>=1.5.2",
+    "requests>=2.34.2",
+    "rioxarray>=0.23.0",
+    "xarray>=2026.9.0",
+    "xvec>=0.5.2",
+]
+
+[project.scripts]
+sea-surface-temp = "sea_surface_temp:main"
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.17.0",
+    "pandas-stubs>=3.0.5.260914",
+    "pytest>=9.1.1",
+    "ruff>=0.17.2",
+    "ty>=0.0.91",
+    "types-geopandas>=1.1.4.20261006",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "CPY001", "COM812", "T201"]
