@@ -5,6 +5,8 @@ from typing import NamedTuple
 import geopandas as gpd
 import pandas as pd
 
+from sea_surface_temp.zonal import aggregate_roi_temperatures
+
 
 class SspPaths(NamedTuple):
     temperature_path: Path
@@ -42,39 +44,10 @@ def generate_roi_monthly_temperatures(
     if month is not None:
         filters.append(("month", "==", month))
     temperatures = pd.read_parquet(ssp_paths.temperature_path, filters=filters)
-    matches = (
-        pd.read_parquet(ssp_paths.mapping_path)
-        .merge(temperatures, on=["grid_id", "pixel_id"])
-        .dropna(subset=["temperature_c"])
+    matches = pd.read_parquet(ssp_paths.mapping_path).merge(
+        temperatures, on=["grid_id", "pixel_id"]
     )
-    group_columns = ["region_id", "month"]
-    weighted_temperatures = (
-        matches.loc[lambda frame: frame["intersection_area_m2"] > 0]
-        .assign(
-            weighted_temperature=lambda frame: (
-                frame["temperature_c"] * frame["intersection_area_m2"]
-            )
-        )
-        .groupby(group_columns)
-        .agg(
-            weighted_temperature=("weighted_temperature", "sum"),
-            overlap_area=("intersection_area_m2", "sum"),
-        )
-        .assign(
-            temperature_c=lambda frame: (
-                frame["weighted_temperature"] / frame["overlap_area"]
-            )
-        )["temperature_c"]
-    )
-    nearest_temperatures = (
-        matches.loc[lambda frame: frame["within_cutoff"]]
-        .sort_values([*group_columns, "distance_km", "pixel_id"])
-        .drop_duplicates(group_columns)
-        .set_index(group_columns)["temperature_c"]
-    )
-    return weighted_temperatures.combine_first(nearest_temperatures).rename(
-        "temperature_c"
-    )
+    return aggregate_roi_temperatures(matches)
 
 
 def generate_roi_temperature_df(  # noqa: PLR0913

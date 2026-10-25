@@ -42,4 +42,4 @@ dev = [
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "CPY001", "COM812", "T201"]
+ignore = ["D", "CPY001", "COM812", "T201", "ERA001"]
